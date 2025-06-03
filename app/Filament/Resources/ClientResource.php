@@ -1,0 +1,146 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\ClientResource\Pages;
+use App\Filament\Resources\ClientResource\RelationManagers;
+use App\Models\Client;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Leandrocfe\FilamentPtbrFormFields\Cep;
+use Leandrocfe\FilamentPtbrFormFields\Document;
+use Leandrocfe\FilamentPtbrFormFields\PhoneNumber;
+
+class ClientResource extends Resource
+{
+    protected static ?string $model = Client::class;
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationLabel = 'Clientes';
+    protected static ?string $pluralModelLabel = 'Clientes';
+    protected static ?string $modelLabel = 'Cliente';
+
+    public static function form(Forms\Form $form): Forms\Form
+    {
+        return $form->schema([
+            Fieldset::make('Dados')
+                ->schema([
+                    TextInput::make('name')
+                        ->label('Nome')
+                        ->placeholder('Digite o nome completo')
+                        ->required()
+                        ->maxLength(255)
+                        ->columnSpan(2)
+                        ->autofocus(),
+
+                    Document::make('document')
+                        ->label('CPF/CNPJ')
+                        ->dynamic()
+                        ->unique(column: 'document', ignoreRecord: true)
+                        ->columnSpan(2),
+
+                    PhoneNumber::make('phone_number')
+                        ->label('Telefone'),
+
+                    \Filament\Forms\Components\Placeholder::make('break_line')
+                        ->label('')
+                        ->columnSpanFull(),
+
+                    Cep::make('postal_code')
+                        ->label('CEP')
+                        ->viaCep(
+                            mode: 'suffix',
+                            errorMessage: 'CEP inválido.',
+                            setFields: [
+                                'address' => 'logradouro',
+                                'number' => 'numero',
+                                'complement' => 'complemento',
+                                'district' => 'bairro',
+                                'city' => 'localidade',
+                                'state' => 'uf'
+                            ]
+                        ),
+
+                    TextInput::make('address')
+                        ->label('Endereço')
+                        ->maxLength(255)
+                        ->columnSpan(3),
+
+                    TextInput::make('number')
+                        ->label('Número')
+                        ->maxLength(10),
+
+                    TextInput::make('complement')
+                        ->label('Complemento')
+                        ->maxLength(255)
+                        ->columnSpan(2),
+
+                    TextInput::make('neighborhood')
+                        ->label('Bairro')
+                        ->maxLength(255)
+                        ->columnSpan(1),
+
+                    TextInput::make('city')
+                        ->label('Cidade')
+                        ->maxLength(255)
+                        ->columnSpan(1),
+
+                    TextInput::make('state')
+                        ->label('Estado')
+                        ->maxLength(1),
+                ])
+                ->columns(5),
+
+
+            Fieldset::make('Acesso')
+                ->schema([
+                    TextInput::make('email')
+                        ->label('E-mail')
+                        ->placeholder('exemplo@dominio.com')
+                        ->email()
+                        ->required()
+                        ->unique(table: User::class, column: 'email', ignorable: fn($record) => $record?->user),
+
+                    TextInput::make('password')
+                        ->label('Senha')
+                        ->password()
+                        ->placeholder('Digite uma senha segura')
+                        ->required(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                        ->minLength(8)
+                        ->maxLength(255),
+                ]),
+        ]);
+    }
+
+    public static function table(Tables\Table $table): Tables\Table
+    {
+        return $table->columns([
+            TextColumn::make('user.name')->label('Nome'),
+            TextColumn::make('user.email')->label('Email'),
+            TextColumn::make('document')->label('CPF/CNPJ'),
+            TextColumn::make('phone_number')->label('Telefone'),
+        ])
+            ->filters([])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListClients::route('/'),
+            'create' => Pages\CreateClient::route('/create'),
+            'edit' => Pages\EditClient::route('/{record}/edit'),
+        ];
+    }
+}
