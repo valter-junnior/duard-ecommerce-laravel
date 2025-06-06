@@ -4,44 +4,50 @@ namespace App\Services;
 
 use App\DTOs\ClientDTO;
 use App\Models\Client;
-use App\Models\User;
+use Illuminate\Support\Collection;
 
 class ClientService
 {
-
-    public function __construct(public UserService $userService){}
-
-    public static function getInstance(): self
+    /**
+     * Cria um novo cliente.
+     */
+    public function create(ClientDTO $dto): Client
     {
-        return new ClientService(
-            UserService::getInstance()
-        );
+        return Client::create($dto->toModel()->getAttributes());
     }
 
-    public function create(ClientDTO $dto): ClientDTO
+    /**
+     * Atualiza um cliente existente.
+     */
+    public function update(int $id, ClientDTO $dto): Client
     {
-        $user = $this->userService->create($dto->user);
+        $client = Client::findOrFail($id);
+        $client->update($dto->toModel()->getAttributes());
 
-        $client = Client::create( [
-            "user_id"=> $user->id,
-            "document" => $dto->document,
-            "phone_number" => $dto->phone_number,
-        ]);
-
-        $dto->id = $client->id;
-
-        return $dto;    
+        return $client;
     }
 
-    public function update(ClientDTO $dto): ClientDTO
+    /**
+     * Deleta um cliente.
+     */
+    public function delete(int $id): void
     {
-        $this->userService->update($dto->user);
+        Client::findOrFail($id)->delete();
+    }
 
-        Client::where('id', $dto->id)->update([
-            "document" => $dto->document,
-            "phone_number" => $dto->phone_number,
-        ]);
+    /**
+     * Retorna um cliente pelo ID.
+     */
+    public function find(int $id): ?Client
+    {
+        return Client::find($id);
+    }
 
-        return $dto;    
+    /**
+     * Lista todos os clientes.
+     */
+    public function all(): Collection
+    {
+        return Client::all();
     }
 }

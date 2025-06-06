@@ -214,7 +214,7 @@ return [
         'name'      => 'nome',
         'zipcode'   => 'cep',
         'company_name'   => 'razão social',
-        'neighborhood' => 'bairro',
+        'district' => 'bairro',
         'number'    => 'número',
         'password'  => 'senha',
         'phone'     => 'telefone',

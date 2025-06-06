@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\ClientResource\Pages;
 
 use App\DTOs\ClientDTO;
+use App\DTOs\ShippingAddressDTO;
 use App\DTOs\UserDTO;
 use App\Filament\Resources\ClientResource;
 use App\Models\Client;
 use App\Models\User;
 use App\Services\ClientService;
+use App\Services\ShippingAddressService;
+use App\Services\UserService;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -18,8 +21,7 @@ class EditClient extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-        ];
+        return [];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
@@ -34,33 +36,50 @@ class EditClient extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $clientService = ClientService::getInstance();
+        $user = $record->user;
 
-        $userDTO = UserDTO::fromArray([
-            'id' => $record->user_id,
-            "name" => $data["name"],
-            "email" => $data["email"],
-            "password" => $data["password"]
-        ]);
+        $userDto = new UserDTO(
+            id: $user->id,
+            name: $data['name'],
+            email: $data['email'],
+            password: $data['password'] ?? null
+        );
 
-        $clientDTO = ClientDTO::fromArray([
-            "id" => $record->id,
-            "user" => $userDTO,
-            "document" => $data["document"],
-            "phone_number" => $data["phone_number"],
-            "postal_code" => $data["postal_code"],
-            "address" => $data["address"],
-            "number" => $data["number"],
-            "complement" => $data["complement"],
-            "neighborhood" => $data["neighborhood"],
-            "city" => $data["city"],
-            "state" => $data["state"],
-        ]);
+        app(UserService::class)->update($user->id, $userDto);
 
-        $clientDTO = $clientService->update($clientDTO);
+        $clientDto = new ClientDTO(
+            id: $record->id,
+            user_id: $user->id,
+            document: $data['document'] ?? null,
+            phone_number: $data['phone_number'] ?? null,
+        );
 
-        $client = Client::findOrFail($clientDTO->id);
+        app(ClientService::class)->update($record->id, $clientDto);
 
-        return $client;
+        $shippingService = app(ShippingAddressService::class);
+
+        $existingAddressIds = $record->shippingAddresses()->pluck('id')->toArray();
+
+        $incomingIds = [];
+        foreach ($data['shippingAddresses'] as $addressData) {
+            $addressDto = ShippingAddressDTO::fromArray([
+                ...$addressData,
+                'client_id' => $record->id,
+            ]);
+
+            if (!empty($addressDto->id)) {
+                $shippingService->update($addressDto->id, $addressDto);
+                $incomingIds[] = $addressDto->id;
+            } else {
+                $new = $shippingService->create($addressDto);
+                $incomingIds[] = $new->id;
+            }
+        }
+
+        $toDelete = array_diff($existingAddressIds, $incomingIds);
+        $record->shippingAddresses()->whereIn('id', $toDelete)->delete();
+
+
+        return $record->fresh();
     }
 }

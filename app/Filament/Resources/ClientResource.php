@@ -38,67 +38,89 @@ class ClientResource extends Resource
                         ->placeholder('Digite o nome completo')
                         ->required()
                         ->maxLength(255)
-                        ->columnSpan(2)
+                        ->columnSpanFull()
                         ->autofocus(),
 
                     Document::make('document')
                         ->label('CPF/CNPJ')
                         ->dynamic()
                         ->unique(column: 'document', ignoreRecord: true)
-                        ->columnSpan(2),
+                        ->columnSpan(1),
 
                     PhoneNumber::make('phone_number')
-                        ->label('Telefone'),
-
-                    \Filament\Forms\Components\Placeholder::make('break_line')
-                        ->label('')
-                        ->columnSpanFull(),
-
-                    Cep::make('postal_code')
-                        ->label('CEP')
-                        ->viaCep(
-                            mode: 'suffix',
-                            errorMessage: 'CEP inválido.',
-                            setFields: [
-                                'address' => 'logradouro',
-                                'number' => 'numero',
-                                'complement' => 'complemento',
-                                'district' => 'bairro',
-                                'city' => 'localidade',
-                                'state' => 'uf'
-                            ]
-                        ),
-
-                    TextInput::make('address')
-                        ->label('Endereço')
-                        ->maxLength(255)
-                        ->columnSpan(3),
-
-                    TextInput::make('number')
-                        ->label('Número')
-                        ->maxLength(10),
-
-                    TextInput::make('complement')
-                        ->label('Complemento')
-                        ->maxLength(255)
-                        ->columnSpan(2),
-
-                    TextInput::make('neighborhood')
-                        ->label('Bairro')
-                        ->maxLength(255)
+                        ->label('Telefone')
                         ->columnSpan(1),
-
-                    TextInput::make('city')
-                        ->label('Cidade')
-                        ->maxLength(255)
-                        ->columnSpan(1),
-
-                    TextInput::make('state')
-                        ->label('Estado')
-                        ->maxLength(1),
                 ])
-                ->columns(5),
+                ->columns(2),
 
+
+            Forms\Components\Section::make('Endereços de Entrega')
+                ->collapsible()
+                ->collapsed()
+                ->schema([
+                    Forms\Components\Repeater::make('shippingAddresses')
+                        ->relationship('shippingAddresses')
+                        ->label('')
+                        ->addActionLabel('Adicionar Endereço')
+                        ->schema([
+                            Forms\Components\Hidden::make('id'),
+
+                            Cep::make('postal_code')
+                                ->label('CEP')
+                                ->viaCep(
+                                    mode: 'suffix',
+                                    errorMessage: 'CEP inválido.',
+                                    setFields: [
+                                        'address' => 'logradouro',
+                                        'district' => 'bairro',
+                                        'city' => 'localidade',
+                                        'state' => 'uf'
+                                    ]
+                                )
+                                ->columnSpan(1),
+
+                            TextInput::make('address')
+                                ->label('Endereço')
+                                ->maxLength(255)
+                                ->columnSpan(3),
+
+                            TextInput::make('number')
+                                ->label('Número')
+                                ->maxLength(10)
+                                ->columnSpan(1),
+
+                            TextInput::make('complement')
+                                ->label('Complemento')
+                                ->maxLength(255)
+                                ->columnSpan(3),
+
+                            TextInput::make('state')
+                                ->label('Estado')
+                                ->columnSpan(1),
+
+                            TextInput::make('city')
+                                ->label('Cidade')
+                                ->maxLength(255)
+                                ->columnSpan(1),
+
+                            TextInput::make('district')
+                                ->label('Bairro')
+                                ->maxLength(255)
+                                ->columnSpan(2),
+                        ])
+                        ->columns(4)
+                        ->defaultItems(1)
+                        ->collapsible()
+                        ->collapsed()
+                        ->itemLabel(
+                            fn(array $state): string =>
+                            isset($state['postal_code'], $state['address'], $state['number'])
+                                ? "{$state['postal_code']}, {$state['address']}, Nº {$state['number']}"
+                                : 'Novo Endereço'
+                        )
+
+                        ->columnSpanFull(),
+                ]),
 
             Fieldset::make('Acesso')
                 ->schema([

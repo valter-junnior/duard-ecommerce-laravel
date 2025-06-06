@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\ClientResource\Pages;
 
 use App\DTOs\ClientDTO;
+use App\DTOs\ShippingAddressDTO;
 use App\DTOs\UserDTO;
 use App\Filament\Resources\ClientResource;
 use App\Models\Client;
 use App\Services\ClientService;
+use App\Services\ShippingAddressService;
 use App\Services\UserService;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
@@ -16,32 +18,36 @@ class CreateClient extends CreateRecord
 {
     protected static string $resource = ClientResource::class;
 
-    protected function handleRecordCreation(array $data): Model
+        protected function handleRecordCreation(array $data): Model
     {
-        $clientService = ClientService::getInstance();
+        $userDto = new UserDTO(
+            id: null,
+            name: $data['name'],
+            email: $data['email'],
+            password: $data['password'] ?? null,
+        );
 
-        $userDTO = UserDTO::fromArray([
-            "name"=> $data["name"],
-            "email"=> $data["email"],
-            "password"=> $data["password"]
-        ]);
+        $user = app(UserService::class)->create($userDto);
 
-        $clientDTO = ClientDTO::fromArray([
-            "user"=> $userDTO,
-            "document"=> $data["document"],
-            "phone_number"=> $data["phone_number"],
-            "postal_code"=> $data["postal_code"],
-            "address"=> $data["address"],
-            "number"=> $data["number"],
-            "complement"=> $data["complement"],
-            "neighborhood"=> $data["neighborhood"],
-            "city"=> $data["city"],
-            "state"=> $data["state"],
-        ]);
+        $clientDto = new ClientDTO(
+            id: null,
+            user_id: $user->id,
+            document: $data['document'] ?? null,
+            phone_number: $data['phone_number'] ?? null,
+        );
 
-        $clientDTO = $clientService->create($clientDTO);
+        $client = app(ClientService::class)->create($clientDto);
 
-        $client = Client::findOrFail($clientDTO->id);
+        if (!empty($data['shippingAddresses'])) {
+            foreach ($data['shippingAddresses'] as $addressData) {
+                $addressDto = ShippingAddressDTO::fromArray([
+                    ...$addressData,
+                    'client_id' => $client->id,
+                ]);
+
+                app(ShippingAddressService::class)->create($addressDto);
+            }
+        }
 
         return $client;
     }

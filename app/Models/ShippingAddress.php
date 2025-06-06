@@ -16,7 +16,7 @@ class ShippingAddress extends Model
         'address',
         'number',
         'complement',
-        'neighborhood',
+        'district',
         'city',
         'state',
     ];

@@ -4,41 +4,65 @@ namespace App\Services;
 
 use App\DTOs\UserDTO;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    public static function getInstance(): self
+    /**
+     * Cria um novo usuário.
+     */
+    public function create(UserDTO $dto): User
     {
-        return new UserService();
-    }
-
-    public function create(UserDTO $dto): UserDTO
-    {
-        $user = User::create([
-            "name" => $dto->name,
-            "email" => $dto->email,
-            "password" => Hash::make($dto->password),
+        return User::create([
+            'name' => $dto->name,
+            'email' => $dto->email,
+            'password' => Hash::make($dto->password),
         ]);
-
-        $dto->id = $user->id;
-
-        return $dto;
     }
 
-    public function update(UserDTO $dto): UserDTO
+    /**
+     * Atualiza um usuário existente.
+     */
+    public function update(int $id, UserDTO $dto): User
     {
+        $user = User::findOrFail($id);
+
         $data = [
-            "name" => $dto->name,
-            "email" => $dto->email,
+            'name' => $dto->name,
+            'email' => $dto->email,
         ];
 
-        if(!empty($dto->password)) {
-            $data["password"] = Hash::make($dto->password);
+        if (!empty($dto->password)) {
+            $data['password'] = Hash::make($dto->password);
         }
 
-        User::where("id", $dto->id)->update($data);
+        $user->update($data);
 
-        return $dto;
+        return $user;
+    }
+
+    /**
+     * Deleta um usuário.
+     */
+    public function delete(int $id): void
+    {
+        User::findOrFail($id)->delete();
+    }
+
+    /**
+     * Busca um usuário pelo ID.
+     */
+    public function find(int $id): ?User
+    {
+        return User::find($id);
+    }
+
+    /**
+     * Lista todos os usuários.
+     */
+    public function all(): Collection
+    {
+        return User::all();
     }
 }
