@@ -26,13 +26,6 @@ class ClientService
             "user_id"=> $user->id,
             "document" => $dto->document,
             "phone_number" => $dto->phone_number,
-            "postal_code" => $dto->postal_code,
-            "address" => $dto->address,
-            "number" => $dto->number,
-            "complement" => $dto->complement,
-            "neighborhood" => $dto->neighborhood,
-            "city" => $dto->city,
-            "state" => $dto->state,
         ]);
 
         $dto->id = $client->id;
@@ -47,13 +40,6 @@ class ClientService
         Client::where('id', $dto->id)->update([
             "document" => $dto->document,
             "phone_number" => $dto->phone_number,
-            "postal_code" => $dto->postal_code,
-            "address" => $dto->address,
-            "number" => $dto->number,
-            "complement" => $dto->complement,
-            "neighborhood" => $dto->neighborhood,
-            "city" => $dto->city,
-            "state" => $dto->state,
         ]);
 
         return $dto;    

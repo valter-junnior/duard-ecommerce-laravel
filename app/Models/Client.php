@@ -15,13 +15,6 @@ class Client extends Model
         'user_id',
         'document',
         'phone_number',
-        'postal_code',
-        'address',
-        'number',
-        'complement',
-        'neighborhood',
-        'city',
-        'state',
     ];
 
     public function user(){
