@@ -3,25 +3,21 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use App\Services\CategoryService;
+use App\Traits\HasMenuConfig;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
+    use HasMenuConfig;
+    
     protected static ?string $model = Category::class;
-    protected static ?string $navigationIcon = 'heroicon-o-square-3-stack-3d';
-    protected static ?string $navigationLabel = 'Categorias';
-    protected static ?string $pluralModelLabel = 'Categorias';
-    protected static ?string $modelLabel = 'Categoria';
 
     public static function form(Form $form): Form
     {

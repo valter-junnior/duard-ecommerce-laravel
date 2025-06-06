@@ -3,30 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClientResource\Pages;
-use App\Filament\Resources\ClientResource\RelationManagers;
 use App\Models\Client;
 use App\Models\User;
+use App\Traits\HasMenuConfig;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Leandrocfe\FilamentPtbrFormFields\Cep;
 use Leandrocfe\FilamentPtbrFormFields\Document;
 use Leandrocfe\FilamentPtbrFormFields\PhoneNumber;
 
 class ClientResource extends Resource
 {
+    use HasMenuConfig;
+
     protected static ?string $model = Client::class;
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string $navigationLabel = 'Clientes';
-    protected static ?string $pluralModelLabel = 'Clientes';
-    protected static ?string $modelLabel = 'Cliente';
 
     public static function form(Forms\Form $form): Forms\Form
     {

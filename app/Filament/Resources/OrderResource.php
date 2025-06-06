@@ -15,17 +15,16 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Get;
 use App\Models\ShippingAddress;
+use App\Traits\HasMenuConfig;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Set;
 use Filament\Tables\Columns\TextColumn;
 
 class OrderResource extends Resource
 {
+    use HasMenuConfig;
+
     protected static ?string $model = Order::class;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Pedidos';
-    protected static ?string $pluralModelLabel = 'Pedidos';
-    protected static ?string $modelLabel = 'Pedido';
 
     public static function form(Form $form): Form
     {
@@ -124,7 +123,8 @@ class OrderResource extends Resource
                         ->searchable()
                         ->nullable()
                         ->reactive()
-                        ->columnSpan(1)->afterStateUpdated(function (Set $set, Get $get, $state) {
+                        ->columnSpan(1)
+                        ->afterStateUpdated(function (Set $set, Get $get, $state) {
                             $product = Product::find($get('product_id'));
                             $variation = $state ? ProductVariation::find($state) : null;
 
@@ -140,6 +140,7 @@ class OrderResource extends Resource
                         ->numeric()
                         ->required()
                         ->reactive()
+                        ->columnSpan(1)
                         ->default(1),
 
                     TextInput::make('unit_price')
@@ -151,7 +152,7 @@ class OrderResource extends Resource
                         ->reactive()
                         ->columnSpan(1),
                 ])
-                ->columns(2)
+                ->columns(4)
                 ->itemLabel(function (array $state): string {
                     $product = Product::find($state['product_id'] ?? null);
                     $variation = ProductVariation::find($state['variation_id'] ?? null);
