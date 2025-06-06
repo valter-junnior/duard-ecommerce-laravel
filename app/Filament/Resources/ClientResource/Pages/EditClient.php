@@ -19,7 +19,6 @@ class EditClient extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
         ];
     }
 
@@ -38,7 +37,7 @@ class EditClient extends EditRecord
         $clientService = ClientService::getInstance();
 
         $userDTO = UserDTO::fromArray([
-            'id'=> $record->user_id,
+            'id' => $record->user_id,
             "name" => $data["name"],
             "email" => $data["email"],
             "password" => $data["password"]
