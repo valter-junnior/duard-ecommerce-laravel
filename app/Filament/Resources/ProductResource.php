@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Components\Forms\AppForm;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
@@ -25,59 +26,68 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
+                AppForm::make([
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->label('Nome'),
 
+                    Forms\Components\Textarea::make('description')
+                        ->label('Descrição')
+                        ->columnSpanFull(),
 
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->label('Nome'),
+                    Forms\Components\FileUpload::make('photos')
+                        ->label('Fotos do Produto')
+                        ->multiple()
+                        ->image()
+                        ->maxSize(250)
+                        ->panelLayout('grid')
+                        ->reorderable()
+                        ->directory('products/images')
+                        ->preserveFilenames()
+                        ->columnSpanFull(),
 
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Categoria'),
+                    Forms\Components\Repeater::make('variations')
+                        ->relationship('variations')
+                        ->label('Variações')
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                                ->label('Nome da Variação')
+                                ->required()
+                                ->maxLength(255)
+                                ->columnSpan(2),
 
-                Forms\Components\Textarea::make('description')
-                    ->label('Descrição')
-                    ->columnSpanFull(),
+                            Forms\Components\TextInput::make('sku')
+                                ->label('SKU')
+                                ->required()
+                                ->maxLength(100)
+                                ->columnSpan(2),
 
-                Money::make('price')
-                    ->required()
-                    ->label('Preço'),
+                            Forms\Components\TextInput::make('stock')
+                                ->label('Estoque')
+                                ->numeric()
+                                ->minValue(0)
+                                ->required()
+                                ->columnSpan(1),
+                        ])
+                        ->defaultItems(1)
+                        ->columns(5)
+                        ->collapsible()
+                        ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'Nova Variação')
+                        ->columnSpanFull(),
+                ], [
+                    Forms\Components\Select::make('category_id')
+                        ->relationship('category', 'name')
+                        ->label('Categoria')
+                        ->searchable()
+                        ->preload()
+                        ->required(),
 
-                Forms\Components\FileUpload::make('photos')
-                    ->label('Fotos do Produto')
-                    ->multiple()
-                    ->image()
-                    ->maxSize(250)
-                    ->imagePreviewHeight('5')
-                    ->panelLayout('grid')
-                    ->reorderable()
-                    ->directory('products')
-                    ->preserveFilenames()
-                    ->columnSpanFull(),
-
-                Forms\Components\Repeater::make('variations')
-                    ->relationship('variations')
-                    ->label('Variações')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Tipo (ex: Tamanho)')
-                            ->required(),
-
-                        Forms\Components\TextInput::make('value')
-                            ->label('Valor (ex: M)')
-                            ->required(),
-
-                        Forms\Components\TextInput::make('price_modifier')
-                            ->label('Modificador de preço')
-                            ->numeric()
-                            ->default(0),
-                    ])
-                    ->defaultItems(1)
-                    ->columnSpanFull()
-                    ->collapsible(),
+                    Forms\Components\TextInput::make('price')
+                        ->label('Preço')
+                        ->numeric()
+                        ->prefix('R$')
+                        ->required(),
+                ]),
             ]);
     }
 
@@ -93,7 +103,7 @@ class ProductResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()   ,
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
