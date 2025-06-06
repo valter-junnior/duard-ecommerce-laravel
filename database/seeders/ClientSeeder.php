@@ -15,27 +15,15 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
-            "name"=> "client",
-            "email"=> "cliente@gmail.com",
-            "password"=> "12345678",
-        ]);
+        Client::factory()
+            ->count(10)
+            ->create()
+            ->each(function ($client) {
+                $client->user->assignRole('client');
 
-        $user ->assignRole("client");
-
-        $client = Client::create([
-            "user_id"=> $user->id,
-        ]);
-
-        ShippingAddress::create([
-            "client_id"=> $client->id,
-            "postal_code"=> "65036-284",
-            "address"=> "Rua teste",
-            "number"=> "123",
-            "complement"=> "Casa",
-            "district"=> "Centro",
-            "city"=> "São Luís",
-            "state"=> "MA",
-        ]);
+                ShippingAddress::factory()->create([
+                    'client_id' => $client->id,
+                ]);
+            });
     }
 }

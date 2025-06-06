@@ -118,7 +118,6 @@ class ClientResource extends Resource
                                 ? "{$state['postal_code']}, {$state['address']}, Nº {$state['number']}"
                                 : 'Novo Endereço'
                         )
-
                         ->columnSpanFull(),
                 ]),
 

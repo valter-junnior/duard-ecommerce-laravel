@@ -54,13 +54,12 @@ class ProductResource extends Resource
                                 ->label('Nome da Variação')
                                 ->required()
                                 ->maxLength(255)
-                                ->columnSpan(2),
+                                ->columnSpan(1),
 
                             Forms\Components\TextInput::make('sku')
                                 ->label('SKU')
-                                ->required()
                                 ->maxLength(100)
-                                ->columnSpan(2),
+                                ->columnSpan(1),
 
                             Forms\Components\TextInput::make('stock')
                                 ->label('Estoque')
@@ -68,11 +67,17 @@ class ProductResource extends Resource
                                 ->minValue(0)
                                 ->required()
                                 ->columnSpan(1),
+
+                            Forms\Components\TextInput::make('price')
+                                ->label('Preço')
+                                ->numeric()
+                                ->prefix('R$')
+                                ->columnSpan(1),
                         ])
                         ->defaultItems(1)
-                        ->columns(5)
+                        ->columns(4)
                         ->collapsible()
-                        ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'Nova Variação')
+                        ->itemLabel(fn(array $state): ?string => $state['name'] ?? 'Nova Variação')
                         ->columnSpanFull(),
                 ], [
                     Forms\Components\Select::make('category_id')
@@ -103,7 +108,7 @@ class ProductResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()   ,
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
