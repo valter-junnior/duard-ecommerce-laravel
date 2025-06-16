@@ -2,7 +2,7 @@
 
 <p align="center">
  <a href="#technologies">Technologies</a> • 
- <a href="#getting-started">Getting Started</a> • 
+ <a href="#getting-started">Getting Started</a>
 </p>
 
 <h2 id="technologies">💻 Technologies</h2>
@@ -28,7 +28,7 @@ Follow these steps to run the project locally.
 <h3>Clone the repository</h3>
 
 ```bash
-git clone https://github.com/valter-junnior/duard-ecommerce-laravel.git
+git clone [https://github.com/valter-junnior/duard-ecommerce-laravel.git](https://github.com/valter-junnior/ecommerce-laravel)
 cd duard-ecommerce-laravel
 ````
 
