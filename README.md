@@ -1,4 +1,3 @@
-````markdown
 <h1 align="center" style="font-weight: bold;">E-Commerce Client Management API 💻</h1>
 
 <p align="center">
